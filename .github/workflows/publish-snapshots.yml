@@ -2,7 +2,9 @@ name: Publish Snapshots
 
 on:
   push:
-    branches: [ main, master ]
+    branches: 
+      - main
+      - master
     paths:
       - 'java-sdk/**'
   workflow_dispatch:
@@ -10,7 +12,7 @@ on:
 jobs:
   publish-snapshots:
     # Only run for snapshot publishing, not when release-please creates releases
-    if: ${{ !contains(github.event.head_commit.message, 'chore(main): release') }}
+    if: "!contains(github.event.head_commit.message, 'chore(main): release')"
     runs-on: ubuntu-latest
     permissions:
       contents: read
