@@ -1,5 +1,5 @@
 {
-  "java-sdk/packages/module-a": "0.0.1",
-  "java-sdk/packages/module-b": "0.0.1",
-  "java-sdk/packages/module-c": "0.0.1"
+  "java-sdk/packages/core": "0.0.1",
+  "java-sdk/packages/client": "0.0.1",
+  "java-sdk/packages/http": "0.0.1"
 }
