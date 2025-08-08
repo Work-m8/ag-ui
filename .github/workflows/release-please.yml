@@ -4,13 +4,11 @@ on:
   push:
     branches:
       - main
-      - master
-    paths:
-      - 'java-sdk/**'
 
 permissions:
   contents: write
   pull-requests: write
+  packages: write
 
 jobs:
   release-please:
@@ -19,121 +17,145 @@ jobs:
       releases_created: ${{ steps.release.outputs.releases_created }}
       paths_released: ${{ steps.release.outputs.paths_released }}
     steps:
-      - name: Release Please
+      - name: Run release-please
         id: release
-        uses: googleapis/release-please-action@v4
+        uses: google-github-actions/release-please-action@v4
         with:
-          # This should match the default branch
-          default-branch: main
-          # Use the manifest-driven approach for multiple packages
           config-file: java-sdk/.release-please-config.json
           manifest-file: java-sdk/.release-please-manifest.json
 
-  # Job to publish packages when releases are created
-  publish-packages:
-    needs: release-please
-    if: ${{ needs.release-please.outputs.releases_created == 'true' }}
+  publish:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+    needs: release-please
+    if: needs.release-please.outputs.releases_created == 'true'
     strategy:
       matrix:
-        # Parse the released paths and create a job for each
         path: ${{ fromJson(needs.release-please.outputs.paths_released) }}
-
+    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-
-    - name: Cache Maven dependencies
-      uses: actions/cache@v4
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-        restore-keys: ${{ runner.os }}-m2
-
-    - name: Configure Maven settings for GitHub Packages
-      run: |
-        mkdir -p ~/.m2
-        cat > ~/.m2/settings.xml << EOF
-        <?xml version="1.0" encoding="UTF-8"?>
-        <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
-                                      http://maven.apache.org/xsd/settings-1.0.0.xsd">
-          <servers>
-            <server>
-              <id>github</id>
-              <username>\${env.GITHUB_ACTOR}</username>
-              <password>\${env.GITHUB_TOKEN}</password>
-            </server>
-          </servers>
-        </settings>
-        EOF
-
-    - name: Get module info
-      id: module-info
-      run: |
-        # Extract module name from path (remove java-sdk/ prefix)
-        MODULE_PATH="${{ matrix.path }}"
-        MODULE_PATH_NO_PREFIX=${MODULE_PATH#java-sdk/}
-        MODULE_NAME=$(basename "$MODULE_PATH_NO_PREFIX")
-        echo "module_name=$MODULE_NAME" >> $GITHUB_OUTPUT
-        echo "module_path=$MODULE_PATH" >> $GITHUB_OUTPUT
-        echo "module_path_no_prefix=$MODULE_PATH_NO_PREFIX" >> $GITHUB_OUTPUT
-
-    - name: Run tests for module
-      run: |
-        cd "${{ steps.module-info.outputs.module_path }}"
-        mvn clean test
-
-    - name: Build and publish module
-      run: |
-        cd "${{ steps.module-info.outputs.module_path }}"
-        mvn clean deploy -DskipTests
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GITHUB_ACTOR: ${{ github.actor }}
-
-    - name: Create release assets
-      run: |
-        # Create a directory for release assets
-        mkdir -p release-assets
+      - name: Checkout code
+        uses: actions/checkout@v4
         
-        # Copy built JARs from this specific module
-        find "${{ steps.module-info.outputs.module_path }}/target" -name "*.jar" -not -path "*/surefire-reports/*" | while read jar; do
-          # Rename jar to include module name for clarity
-          filename=$(basename "$jar")
-          module_name="${{ steps.module-info.outputs.module_name }}"
-          new_filename="${module_name}-${filename}"
-          cp "$jar" "release-assets/$new_filename"
-        done
-        
-        # List files for verification
-        ls -la release-assets/
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          server-id: github
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+          
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+          
+      - name: Update dependency versions
+        run: |
+          # Update inter-module dependencies to use released versions
+          # This script will be run for each module that was released
+          MODULE_PATH="${{ matrix.path }}"
+          
+          if [ -f "$MODULE_PATH/pom.xml" ]; then
+            echo "Processing module at $MODULE_PATH"
+            
+            # Get the new version from the POM
+            cd "$MODULE_PATH"
+            NEW_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+            MODULE_ARTIFACT=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
+            
+            echo "Module $MODULE_ARTIFACT released with version $NEW_VERSION"
+            
+            # Update dependencies in other modules to use this new version
+            cd ../../..
+            find java-sdk/packages -name "pom.xml" -not -path "$MODULE_PATH/*" | while read pom; do
+              echo "Checking $pom for dependencies on $MODULE_ARTIFACT"
+              if grep -q "<artifactId>$MODULE_ARTIFACT</artifactId>" "$pom"; then
+                echo "Updating dependency in $pom"
+                # Use xmlstarlet or sed to update the version
+                # This is a simplified approach - you might need more sophisticated XML handling
+                mvn versions:use-dep-version \
+                  -Dincludes=com.yourcompany:$MODULE_ARTIFACT \
+                  -DdepVersion=$NEW_VERSION \
+                  -DforceVersion=true \
+                  -f "$pom" || true
+              fi
+            done
+          fi
+          
+      - name: Build and test
+        run: |
+          cd "${{ matrix.path }}"
+          mvn clean verify
+          
+      - name: Publish to GitHub Packages
+        run: |
+          cd "${{ matrix.path }}"
+          mvn deploy -DskipTests
+        env:
+          MAVEN_USERNAME: ${{ github.actor }}
+          MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Get release tag for this module
-      id: get-tag
-      run: |
-        # The tag should be in format: java-sdk/{module-path}-v{version}
-        MODULE_PATH_NO_PREFIX="${{ steps.module-info.outputs.module_path_no_prefix }}"
-        # Look for the most recent tag for this module
-        TAG=$(git tag --sort=-version:refname | grep "^java-sdk/${MODULE_PATH_NO_PREFIX}-v" | head -n1)
-        echo "tag_name=$TAG" >> $GITHUB_OUTPUT
-        echo "Found tag: $TAG"
-
-    - name: Upload Release Assets
-      if: ${{ steps.get-tag.outputs.tag_name != '' }}
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: ${{ steps.get-tag.outputs.tag_name }}
-        files: release-assets/*.jar
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  # Optional: Update snapshot versions after release
+  update-snapshots:
+    runs-on: ubuntu-latest
+    needs: [release-please, publish]
+    if: needs.release-please.outputs.releases_created == 'true'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          
+      - name: Configure Git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+      - name: Update inter-module dependencies
+        run: |
+          # After all modules are released, update any remaining snapshot dependencies
+          # to use the latest released versions
+          
+          PATHS_RELEASED='${{ needs.release-please.outputs.paths_released }}'
+          echo "Released paths: $PATHS_RELEASED"
+          
+          # For each released module, update dependencies in other modules
+          echo "$PATHS_RELEASED" | jq -r '.[]' | while read module_path; do
+            if [ -f "$module_path/pom.xml" ]; then
+              cd "$module_path"
+              MODULE_ARTIFACT=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
+              NEW_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+              cd ../../..
+              
+              # Update this dependency in all other modules
+              find java-sdk/packages -name "pom.xml" -not -path "$module_path/*" | while read pom; do
+                if grep -q "<artifactId>$MODULE_ARTIFACT</artifactId>" "$pom"; then
+                  mvn versions:use-dep-version \
+                    -Dincludes=com.yourcompany:$MODULE_ARTIFACT \
+                    -DdepVersion=$NEW_VERSION \
+                    -DforceVersion=true \
+                    -f "$pom" || true
+                fi
+              done
+            fi
+          done
+          
+      - name: Commit dependency updates
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit"
+          else
+            git add -A
+            git commit -m "chore: update inter-module dependencies after release"
+            git push origin main
+          fi

@@ -1,9 +1,5 @@
 {
-  "packages/core": "0.0.1-SNAPSHOT",
-  "packages/client": "0.0.1-SNAPSHOT",
-  "packages/http": "0.0.1-SNAPSHOT",
-  "packages/ok-http": "0.0.1-SNAPSHOT",
-  "packages/spring-http": "0.0.1-SNAPSHOT",
-  "integrations/spring-ai": "0.0.1-SNAPSHOT",
-  "utils/json": "0.0.1-SNAPSHOT"
+  "java-sdk/packages/module-a": "0.0.1",
+  "java-sdk/packages/module-b": "0.0.1",
+  "java-sdk/packages/module-c": "0.0.1"
 }
