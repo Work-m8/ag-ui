@@ -17,11 +17,12 @@
         <module>packages/spring-http</module>
         <module>integrations/spring-ai</module>
         <module>utils/json</module>
+        <module>examples/spring</module>
     </modules>
 
     <properties>
-        <maven.compiler.source>18</maven.compiler.source>
-        <maven.compiler.target>18</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <sonar.organization>work-m8</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>

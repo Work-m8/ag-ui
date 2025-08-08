@@ -1,0 +1,22 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "22434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    restart: unless-stopped
+    entrypoint: >
+      bash -c "
+        /bin/ollama serve &
+        sleep 10 &&
+        ollama pull qwen2.5:0.5b &&
+        echo 'Models ready!' &&
+        wait
+      "
+volumes:
+  ollama_data:
+    driver: local

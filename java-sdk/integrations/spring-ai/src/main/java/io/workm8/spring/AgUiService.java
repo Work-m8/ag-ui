@@ -6,12 +6,10 @@ import io.workm8.agui.client.subscriber.AgentSubscriber;
 import io.workm8.agui.client.subscriber.AgentSubscriberParams;
 import io.workm8.agui.event.BaseEvent;
 import io.workm8.spring.agent.SpringAgent;
-import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 
-@Service
 public class AgUiService {
 
     public SseEmitter streamEvents(final SpringAgent agent, final RunAgentParameters parameters) {

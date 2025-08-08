@@ -1,7 +1,9 @@
-package io.workm8.spring;
+package io.workm8.agui;
 
 import io.workm8.agui.client.RunAgentParameters;
 import io.workm8.agui.state.State;
+import io.workm8.spring.AgUiParameters;
+import io.workm8.spring.AgUiService;
 import io.workm8.spring.agent.SpringAgent;
 import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.ai.ollama.api.OllamaApi;
@@ -31,8 +33,8 @@ public class AgUiController {
     @PostMapping(value = "/sse/{agentId}")
     public ResponseEntity<SseEmitter> streamData(@PathVariable("agentId") final String agentId, @RequestBody() final AgUiParameters agUiParameters) {
         var chatModel = OllamaChatModel.builder()
-            .defaultOptions(OllamaOptions.builder().model("llama3.2").build())
-            .ollamaApi(OllamaApi.builder().baseUrl("http://localhost:11434").build())
+            .defaultOptions(OllamaOptions.builder().model("qwen2.5:0.5b").build())
+            .ollamaApi(OllamaApi.builder().baseUrl("http://localhost:22434").build())
             .build();
 
         SpringAgent agent = new SpringAgent(
