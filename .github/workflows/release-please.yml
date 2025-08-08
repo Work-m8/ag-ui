@@ -20,7 +20,7 @@ jobs:
     steps:
       - name: Run release-please
         id: release
-        uses: google-github-actions/release-please-action@v4
+        uses: googleapis/release-please-action@v4
         with:
           config-file: java-sdk/.release-please-config.json
           manifest-file: java-sdk/.release-please-manifest.json
