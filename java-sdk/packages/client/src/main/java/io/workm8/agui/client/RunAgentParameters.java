@@ -4,7 +4,6 @@ import io.workm8.agui.context.Context;
 import io.workm8.agui.tool.Tool;
 
 import java.util.List;
-import java.util.Optional;
 
 public class RunAgentParameters {
 

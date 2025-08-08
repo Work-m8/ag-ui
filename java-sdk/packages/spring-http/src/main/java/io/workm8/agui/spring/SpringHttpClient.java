@@ -1,8 +1,10 @@
 package io.workm8.agui.spring;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.workm8.agui.BaseHttpClient;
 import io.workm8.agui.event.BaseEvent;
 import io.workm8.agui.input.RunAgentInput;
+import io.workm8.agui.json.ObjectMapperFactory;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.http.MediaType;
@@ -11,12 +13,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-public class HttpClient extends BaseHttpClient {
+public class SpringHttpClient extends BaseHttpClient {
 
     private final WebClient webClient;
     private final String url;
 
-    public HttpClient(final String url) {
+    private final ObjectMapper objectMapper;
+
+    public SpringHttpClient(final String url) {
         super();
         this.url = url;
 
@@ -25,6 +29,9 @@ public class HttpClient extends BaseHttpClient {
                 .defaultCodecs()
                 .maxInMemorySize(16 * 1024 * 1024)) // 16MB buffer for streaming
                 .build();
+
+        this.objectMapper = new ObjectMapper();
+        ObjectMapperFactory.addMixins(this.objectMapper);
     }
 
     @Override

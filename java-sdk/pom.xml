@@ -14,8 +14,9 @@
         <module>packages/client</module>
         <module>packages/ok-http</module>
         <module>packages/http</module>
-        <module>packages/spring</module>
+        <module>packages/spring-http</module>
         <module>integrations/spring-ai</module>
+        <module>utils/json</module>
     </modules>
 
     <properties>

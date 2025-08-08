@@ -1,4 +1,4 @@
-package io.workm8.agui.state;
+package io.workm8.agui.json.mixins;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -12,4 +12,5 @@ public interface StateMixin {
 
     @JsonAnySetter
     void set(String key, Object value);
+
 }

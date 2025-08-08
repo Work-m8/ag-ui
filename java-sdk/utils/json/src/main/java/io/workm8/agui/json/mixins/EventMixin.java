@@ -1,12 +1,12 @@
-package io.workm8.agui.event;
+package io.workm8.agui.json.mixins;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.workm8.agui.event.*;
 
 @JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        property = "type"
+    use = JsonTypeInfo.Id.NAME,
+    property = "type"
 )
 @JsonSubTypes({
     @JsonSubTypes.Type(value = CustomEvent.class, name = "CUSTOM"),

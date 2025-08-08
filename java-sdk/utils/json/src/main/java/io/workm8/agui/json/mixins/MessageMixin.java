@@ -1,4 +1,4 @@
-package io.workm8.agui.message;
+package io.workm8.agui.json.mixins;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -17,3 +17,4 @@ import io.workm8.agui.message.*;
 })
 public interface MessageMixin {
 }
+

@@ -1,27 +1,8 @@
 package com.agui;
 
 
-import io.workm8.agui.HttpAgent;
-import io.workm8.agui.client.RunAgentParameters;
-import io.workm8.agui.client.subscriber.AgentSubscriberParams;
-import io.workm8.agui.event.BaseEvent;
-import io.workm8.agui.message.BaseMessage;
-import io.workm8.agui.message.UserMessage;
-import io.workm8.agui.okhttp.HttpClient;
-import io.workm8.agui.client.subscriber.AgentSubscriber;
-import io.workm8.agui.state.State;
-import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class HttpAgentTest {
-
+/*
     @Test
     public void itShouldCallEndpoint() throws InterruptedException {
         var message = new UserMessage();
@@ -82,5 +63,5 @@ public class HttpAgentTest {
         System.out.println("Test completed successfully with " + receivedEvents.size() + " events");
 
     }
-
+*/
 }

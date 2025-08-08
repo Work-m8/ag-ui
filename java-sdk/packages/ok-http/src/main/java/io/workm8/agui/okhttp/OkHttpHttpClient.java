@@ -1,8 +1,10 @@
 package io.workm8.agui.okhttp;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.workm8.agui.BaseHttpClient;
 import io.workm8.agui.event.BaseEvent;
 import io.workm8.agui.input.RunAgentInput;
+import io.workm8.agui.json.ObjectMapperFactory;
 import okhttp3.*;
 
 import java.io.BufferedReader;
@@ -12,13 +14,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-public class HttpClient extends BaseHttpClient {
+public class OkHttpHttpClient extends BaseHttpClient {
 
     private final OkHttpClient client;
 
     private final String url;
 
-    public HttpClient(final String url) {
+    private final ObjectMapper objectMapper;
+
+    public OkHttpHttpClient(final String url) {
         super();
 
         this.url = url;
@@ -26,6 +30,9 @@ public class HttpClient extends BaseHttpClient {
         this.client = new OkHttpClient.Builder()
             .readTimeout(0, TimeUnit.MILLISECONDS)
             .build();
+
+        this.objectMapper = new ObjectMapper();
+        ObjectMapperFactory.addMixins(this.objectMapper);
     }
 
     @Override
