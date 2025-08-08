@@ -17,6 +17,8 @@ jobs:
       !contains(github.event.head_commit.message, 'update inter-module dependencies') &&
       !contains(github.event.head_commit.message, 'build(deps)') &&
       !contains(github.event.head_commit.message, '[skip ci]') &&
+      !contains(github.event.head_commit.message, 'chore: release') &&
+      !contains(github.event.head_commit.message, 'chore(main): release') &&
       github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     outputs:
