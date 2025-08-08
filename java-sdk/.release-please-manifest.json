@@ -1,0 +1,9 @@
+{
+  "packages/core": "0.0.1",
+  "packages/client": "0.0.1",
+  "packages/http": "0.0.1",
+  "packages/ok-http": "0.0.1",
+  "packages/spring-http": "0.0.1",
+  "integrations/spring-ai": "0.0.1",
+  "utils/json": "0.0.1"
+}

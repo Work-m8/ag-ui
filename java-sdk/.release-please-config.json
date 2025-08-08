@@ -1,0 +1,115 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    "packages/core": {
+      "release-type": "maven",
+      "package-name": "core",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [],
+      "version-file": "pom.xml"
+    },
+    "packages/client": {
+      "release-type": "maven",
+      "package-name": "client",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [],
+      "version-file": "pom.xml"
+    },
+    "packages/http": {
+      "release-type": "maven",
+      "package-name": "http",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [],
+      "version-file": "pom.xml"
+    },
+    "packages/ok-http": {
+      "release-type": "maven",
+      "package-name": "ok-http",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [],
+      "version-file": "pom.xml"
+    },
+    "packages/spring-http": {
+      "release-type": "maven",
+      "package-name": "spring-http",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [],
+      "version-file": "pom.xml"
+    },
+    "integrations/spring-ai": {
+      "release-type": "maven",
+      "package-name": "spring-ai",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [],
+      "version-file": "pom.xml"
+    },
+    "utils/json": {
+      "release-type": "maven",
+      "package-name": "json",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [],
+      "version-file": "pom.xml"
+    }
+  },
+  "changelog-sections": [
+    {
+      "type": "feat",
+      "section": "Features",
+      "hidden": false
+    },
+    {
+      "type": "fix",
+      "section": "Bug Fixes",
+      "hidden": false
+    },
+    {
+      "type": "docs",
+      "section": "Documentation",
+      "hidden": false
+    },
+    {
+      "type": "style",
+      "section": "Styles",
+      "hidden": true
+    },
+    {
+      "type": "refactor",
+      "section": "Code Refactoring",
+      "hidden": false
+    },
+    {
+      "type": "perf",
+      "section": "Performance Improvements",
+      "hidden": false
+    },
+    {
+      "type": "test",
+      "section": "Tests",
+      "hidden": true
+    },
+    {
+      "type": "build",
+      "section": "Build System",
+      "hidden": true
+    },
+    {
+      "type": "ci",
+      "section": "Continuous Integration",
+      "hidden": true
+    },
+    {
+      "type": "chore",
+      "section": "Miscellaneous",
+      "hidden": true
+    },
+    {
+      "type": "revert",
+      "section": "Reverts",
+      "hidden": false
+    }
+  ],
+  "release-search-depth": 400,
+  "commit-search-depth": 500,
+  "separate-pull-requests": true,
+  "group-pull-request-title-pattern": "chore: release multiple packages"
+}
