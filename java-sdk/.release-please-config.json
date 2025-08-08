@@ -19,22 +19,5 @@
       "changelog-path": "java-sdk/packages/http/CHANGELOG.md",
       "version-file": "java-sdk/packages/http/pom.xml"
     }
-  },
-  "plugins": [
-    {
-      "type": "maven",
-      "artifactName": "core",
-      "groupId": "io.workm8.ag-ui"
-    },
-    {
-      "type": "maven",
-      "artifactName": "client",
-      "groupId": "io.workm8.ag-ui"
-    },
-    {
-      "type": "maven",
-      "artifactName": "http",
-      "groupId": "io.workm8.ag-ui"
-    }
-  ]
+  }
 }
