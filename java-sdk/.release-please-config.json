@@ -19,5 +19,21 @@
       "changelog-path": "java-sdk/packages/http/CHANGELOG.md",
       "version-file": "java-sdk/packages/http/pom.xml"
     }
-  }
+  },
+  "changelog-sections": [
+    {"type": "feat", "section": "Features"},
+    {"type": "fix", "section": "Bug Fixes"},
+    {"type": "chore", "section": "Miscellaneous", "hidden": true}
+  ],
+  "commit-search-depth": 500,
+  "pull-request-title-pattern": "chore: release ${version}",
+  "exclude-paths": [
+    ".github/**",
+    "docs/**"
+  ],
+  "exclude-commits": [
+    "^chore: update inter-module dependencies",
+    "^chore\\(deps\\):",
+    "^build\\(deps\\):"
+  ]
 }
