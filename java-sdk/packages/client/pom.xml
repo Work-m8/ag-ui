@@ -19,7 +19,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- AG-UI module versions -->
-        <agui.core.version>0.0.1</agui.core.version>
+        <agui.core.version>0.0.1-SNAPSHOT</agui.core.version>
     </properties>
 
     <licenses>
