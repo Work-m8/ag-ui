@@ -13,12 +13,11 @@ permissions:
 
 jobs:
   release-please:
+    # Only skip the dependency update commits, but allow release commits to trigger publishing
     if: |
       !contains(github.event.head_commit.message, 'update inter-module dependencies') &&
       !contains(github.event.head_commit.message, 'build(deps)') &&
       !contains(github.event.head_commit.message, '[skip ci]') &&
-      !contains(github.event.head_commit.message, 'chore: release') &&
-      !contains(github.event.head_commit.message, 'chore(main): release') &&
       github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     outputs:
@@ -27,6 +26,10 @@ jobs:
     steps:
       - name: Run release-please
         id: release
+        # Only run release-please if this is NOT a release commit
+        if: |
+          !contains(github.event.head_commit.message, 'chore: release') &&
+          !contains(github.event.head_commit.message, 'chore(main): release')
         uses: googleapis/release-please-action@v4
         with:
           config-file: java-sdk/.release-please-config.json
@@ -35,10 +38,15 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     needs: release-please
-    if: needs.release-please.outputs.releases_created == 'true'
+    # Run if release-please created releases OR if this is a release commit
+    if: |
+      needs.release-please.outputs.releases_created == 'true' ||
+      contains(github.event.head_commit.message, 'chore: release') ||
+      contains(github.event.head_commit.message, 'chore(main): release')
     strategy:
       matrix:
-        path: ${{ fromJson(needs.release-please.outputs.paths_released) }}
+        # Use paths from release-please if available, otherwise publish all packages
+        path: ${{ fromJson(needs.release-please.outputs.paths_released || '["java-sdk/packages/core", "java-sdk/packages/client", "java-sdk/packages/http"]') }}
     
     steps:
       - name: Checkout code
@@ -61,6 +69,8 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
           
       - name: Update dependency versions
+        # Only do this if release-please actually ran and created releases
+        if: needs.release-please.outputs.releases_created == 'true'
         run: |
           MODULE_PATH="${{ matrix.path }}"
           
@@ -103,6 +113,7 @@ jobs:
   update-snapshots:
     runs-on: ubuntu-latest
     needs: [release-please, publish]
+    # Only run this for new releases (not when publishing existing releases)
     if: needs.release-please.outputs.releases_created == 'true'
     
     steps:
@@ -130,7 +141,7 @@ jobs:
           echo "$PATHS_RELEASED" | jq -r '.[]' | while read module_path; do
             if [ -f "$module_path/pom.xml" ]; then
               cd "$module_path"
-              MODULE_ARTIFACT=$(mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout)
+              MODULE_ARTIFACT=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
               NEW_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
               cd ../../..
               
